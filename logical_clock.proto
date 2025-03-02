@@ -3,7 +3,21 @@ syntax = "proto3";
 package logicalclock;
 
 service ClockService {
+  rpc ReadyCheck (ReadyRequest) returns (ReadyResponse);
   rpc SendMessage (ClockMessage) returns (Ack);
+  rpc FinishCheck (FinishRequest) returns (FinishResponse);
+}
+
+message FinishRequest {}
+
+message FinishResponse {
+  bool is_finished = 1;
+}
+
+message ReadyRequest {}
+
+message ReadyResponse {
+  bool is_ready = 1;
 }
 
 message ClockMessage {

@@ -34,17 +34,39 @@ class ClockServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.ReadyCheck = channel.unary_unary(
+                '/logicalclock.ClockService/ReadyCheck',
+                request_serializer=logical__clock__pb2.ReadyRequest.SerializeToString,
+                response_deserializer=logical__clock__pb2.ReadyResponse.FromString,
+                _registered_method=True)
         self.SendMessage = channel.unary_unary(
                 '/logicalclock.ClockService/SendMessage',
                 request_serializer=logical__clock__pb2.ClockMessage.SerializeToString,
                 response_deserializer=logical__clock__pb2.Ack.FromString,
+                _registered_method=True)
+        self.FinishCheck = channel.unary_unary(
+                '/logicalclock.ClockService/FinishCheck',
+                request_serializer=logical__clock__pb2.FinishRequest.SerializeToString,
+                response_deserializer=logical__clock__pb2.FinishResponse.FromString,
                 _registered_method=True)
 
 
 class ClockServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def ReadyCheck(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def SendMessage(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def FinishCheck(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,10 +75,20 @@ class ClockServiceServicer(object):
 
 def add_ClockServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'ReadyCheck': grpc.unary_unary_rpc_method_handler(
+                    servicer.ReadyCheck,
+                    request_deserializer=logical__clock__pb2.ReadyRequest.FromString,
+                    response_serializer=logical__clock__pb2.ReadyResponse.SerializeToString,
+            ),
             'SendMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.SendMessage,
                     request_deserializer=logical__clock__pb2.ClockMessage.FromString,
                     response_serializer=logical__clock__pb2.Ack.SerializeToString,
+            ),
+            'FinishCheck': grpc.unary_unary_rpc_method_handler(
+                    servicer.FinishCheck,
+                    request_deserializer=logical__clock__pb2.FinishRequest.FromString,
+                    response_serializer=logical__clock__pb2.FinishResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -68,6 +100,33 @@ def add_ClockServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class ClockService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def ReadyCheck(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/logicalclock.ClockService/ReadyCheck',
+            logical__clock__pb2.ReadyRequest.SerializeToString,
+            logical__clock__pb2.ReadyResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def SendMessage(request,
@@ -86,6 +145,33 @@ class ClockService(object):
             '/logicalclock.ClockService/SendMessage',
             logical__clock__pb2.ClockMessage.SerializeToString,
             logical__clock__pb2.Ack.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def FinishCheck(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/logicalclock.ClockService/FinishCheck',
+            logical__clock__pb2.FinishRequest.SerializeToString,
+            logical__clock__pb2.FinishResponse.FromString,
             options,
             channel_credentials,
             insecure,
