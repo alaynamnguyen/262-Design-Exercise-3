@@ -41,9 +41,6 @@ class VirtualMachine:
         self.event_queue = queue.Queue()
         self.log_file = f"log/{process_id}{run_id}.log"
         self.is_finished = False
-        
-        # Create ClockService instance and share it with gRPC
-        self.service = ClockService(self)
 
         # Start the gRPC server in a separate thread
         server_thread = threading.Thread(target=self.start_server)
