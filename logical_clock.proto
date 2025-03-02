@@ -8,7 +8,9 @@ service ClockService {
   rpc FinishCheck (FinishRequest) returns (FinishResponse);
 }
 
-message FinishRequest {}
+message FinishRequest {
+  string sender_id = 1;
+}
 
 message FinishResponse {
   bool is_finished = 1;

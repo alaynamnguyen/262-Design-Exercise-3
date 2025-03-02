@@ -20,7 +20,8 @@ class ClockService(logical_clock_pb2_grpc.ClockServiceServicer):
 
     def FinishCheck(self, request, context):
         """Returns whether this process has finished execution."""
-        return logical_clock_pb2.FinishResponse(is_finished=self.is_finished)
+        print(f"FinishCheck called by {request.sender_id} -> returning {self.process.is_finished}")
+        return logical_clock_pb2.FinishResponse(is_finished=self.process.is_finished)
 
     def SendMessage(self, request, context):
         """Handles received messages and places them in the event queue."""
@@ -39,6 +40,7 @@ class VirtualMachine:
         self.clock_rate = 1 if process_id == "A" else 6
         self.event_queue = queue.Queue()
         self.log_file = f"log/{process_id}{run_id}.log"
+        self.is_finished = False
         
         # Create ClockService instance and share it with gRPC
         self.service = ClockService(self)
@@ -97,16 +99,18 @@ class VirtualMachine:
             all_finished = True  # Assume all are finished unless proven otherwise
 
             for target_port in self.num_to_port.values():
+                print(f"Checking if {target_port} finished")
                 try:
                     channel = grpc.insecure_channel(f"localhost:{target_port}")
                     stub = logical_clock_pb2_grpc.ClockServiceStub(channel)
-                    response = stub.FinishCheck(logical_clock_pb2.FinishRequest())
-
+                    response = stub.FinishCheck(logical_clock_pb2.FinishRequest(sender_id=self.process_id))
+                    print(f"    {target_port} finished: {response.is_finished}")
                     if not response.is_finished:
                         all_finished = False  # At least one process is still running
                         break
                 except grpc.RpcError:
-                    all_finished = False  # Assume not finished if unreachable
+                    print(f"    {target_port} finished: RpcError")
+                    pass # Assume not finished if unreachable
 
             if all_finished:
                 break  # Exit loop once all processes report they are finished
@@ -169,7 +173,7 @@ class VirtualMachine:
                     self.log_event("INTERNAL", time.time(), self.event_queue.qsize())
         
         # Mark this process as finished
-        self.service.is_finished = True
+        self.is_finished = True
         print(f"{self.process_id} has finished execution.")
 
         # Wait for all other processes to finish

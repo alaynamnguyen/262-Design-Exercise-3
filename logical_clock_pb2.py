@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13logical_clock.proto\x12\x0clogicalclock\"\x0f\n\rFinishRequest\"%\n\x0e\x46inishResponse\x12\x13\n\x0bis_finished\x18\x01 \x01(\x08\"\x0e\n\x0cReadyRequest\"!\n\rReadyResponse\x12\x10\n\x08is_ready\x18\x01 \x01(\x08\"M\n\x0c\x43lockMessage\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x15\n\rlogical_clock\x18\x02 \x01(\x03\x12\x13\n\x0bsystem_time\x18\x03 \x01(\x03\"\x16\n\x03\x41\x63k\x12\x0f\n\x07message\x18\x01 \x01(\t2\xdd\x01\n\x0c\x43lockService\x12\x45\n\nReadyCheck\x12\x1a.logicalclock.ReadyRequest\x1a\x1b.logicalclock.ReadyResponse\x12<\n\x0bSendMessage\x12\x1a.logicalclock.ClockMessage\x1a\x11.logicalclock.Ack\x12H\n\x0b\x46inishCheck\x12\x1b.logicalclock.FinishRequest\x1a\x1c.logicalclock.FinishResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13logical_clock.proto\x12\x0clogicalclock\"\"\n\rFinishRequest\x12\x11\n\tsender_id\x18\x01 \x01(\t\"%\n\x0e\x46inishResponse\x12\x13\n\x0bis_finished\x18\x01 \x01(\x08\"\x0e\n\x0cReadyRequest\"!\n\rReadyResponse\x12\x10\n\x08is_ready\x18\x01 \x01(\x08\"M\n\x0c\x43lockMessage\x12\x11\n\tsender_id\x18\x01 \x01(\t\x12\x15\n\rlogical_clock\x18\x02 \x01(\x03\x12\x13\n\x0bsystem_time\x18\x03 \x01(\x03\"\x16\n\x03\x41\x63k\x12\x0f\n\x07message\x18\x01 \x01(\t2\xdd\x01\n\x0c\x43lockService\x12\x45\n\nReadyCheck\x12\x1a.logicalclock.ReadyRequest\x1a\x1b.logicalclock.ReadyResponse\x12<\n\x0bSendMessage\x12\x1a.logicalclock.ClockMessage\x1a\x11.logicalclock.Ack\x12H\n\x0b\x46inishCheck\x12\x1b.logicalclock.FinishRequest\x1a\x1c.logicalclock.FinishResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,17 +32,17 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'logical_clock_pb2', _global
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_FINISHREQUEST']._serialized_start=37
-  _globals['_FINISHREQUEST']._serialized_end=52
-  _globals['_FINISHRESPONSE']._serialized_start=54
-  _globals['_FINISHRESPONSE']._serialized_end=91
-  _globals['_READYREQUEST']._serialized_start=93
-  _globals['_READYREQUEST']._serialized_end=107
-  _globals['_READYRESPONSE']._serialized_start=109
-  _globals['_READYRESPONSE']._serialized_end=142
-  _globals['_CLOCKMESSAGE']._serialized_start=144
-  _globals['_CLOCKMESSAGE']._serialized_end=221
-  _globals['_ACK']._serialized_start=223
-  _globals['_ACK']._serialized_end=245
-  _globals['_CLOCKSERVICE']._serialized_start=248
-  _globals['_CLOCKSERVICE']._serialized_end=469
+  _globals['_FINISHREQUEST']._serialized_end=71
+  _globals['_FINISHRESPONSE']._serialized_start=73
+  _globals['_FINISHRESPONSE']._serialized_end=110
+  _globals['_READYREQUEST']._serialized_start=112
+  _globals['_READYREQUEST']._serialized_end=126
+  _globals['_READYRESPONSE']._serialized_start=128
+  _globals['_READYRESPONSE']._serialized_end=161
+  _globals['_CLOCKMESSAGE']._serialized_start=163
+  _globals['_CLOCKMESSAGE']._serialized_end=240
+  _globals['_ACK']._serialized_start=242
+  _globals['_ACK']._serialized_end=264
+  _globals['_CLOCKSERVICE']._serialized_start=267
+  _globals['_CLOCKSERVICE']._serialized_end=488
 # @@protoc_insertion_point(module_scope)
