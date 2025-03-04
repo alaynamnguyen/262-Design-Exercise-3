@@ -12,15 +12,15 @@ config = {
     "default": {
         "A": {
             "clock_rate": random.randint(1, 6),
-            "max_action": 3,
+            "max_action": 10,
         },
         "B": {
             "clock_rate": random.randint(1, 6),
-            "max_action": 3,
+            "max_action": 10,
         },
         "C": {
             "clock_rate": random.randint(1, 6),
-            "max_action": 3,
+            "max_action": 10,
         }
     },
     "small": {
@@ -40,29 +40,29 @@ config = {
     "custom": {
         "A": {
             "clock_rate": 1,
-            "max_action": 3,
+            "max_action": 10,
         },
         "B": {
             "clock_rate": 3,
-            "max_action": 3,
+            "max_action": 10,
         },
         "C": {
             "clock_rate": 6,
-            "max_action": 3,
+            "max_action": 10,
         }
     }, 
     "166": {
         "A": {
             "clock_rate": 1,
-            "max_action": 3,
+            "max_action": 10,
         },
         "B": {
             "clock_rate": 6,
-            "max_action": 3,
+            "max_action": 10,
         },
         "C": {
             "clock_rate": 6,
-            "max_action": 3,
+            "max_action": 10,
         }
     }
 }
