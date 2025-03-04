@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 import re
 
@@ -35,19 +36,53 @@ def read_log(file_path):
 
 # Function to plot all processes on the same graph
 def plot_combined(system_times, y_label, title, filename, clock_rates):
-    plt.figure(figsize=(8, 10))
+    plt.figure(figsize=(8, 5))
     
     # Define colors for A, B, C
     colors = {"A": "blue", "B": "red", "C": "green"}
     for process, sys_time, y_values in system_times:
         clock_rate = clock_rates[process]  # Get clock rate
         label = f"{process} (Clock Rate: {clock_rate})"
-        plt.plot(sys_time, y_values, marker='o', linestyle='-', color=colors[process], label=label)
+        plt.plot(sys_time, y_values, marker='.', markersize=1, linestyle='-', color=colors[process], label=label)
 
     plt.xlabel("System Time")
     plt.ylabel(y_label)
     plt.title(title)
     plt.legend()  # Show legend with clock rates
+    plt.grid(True)
+    plt.savefig(filename)
+    plt.close()
+
+# Function to plot logical clock drift over time
+def plot_logical_clock_drift(system_times, title, filename, clock_rates):
+    plt.figure(figsize=(8, 5))
+
+    # Define colors for A, B, C
+    colors = {"A": "blue", "B": "red", "C": "green"}
+
+    # Collect all unique system times from all processes
+    all_times = sorted(set(time for _, sys_time, _ in system_times for time in sys_time))
+
+    # Interpolate logical clocks so all processes have the same timestamps
+    interpolated_clocks = {}
+    for process, sys_time, y_values in system_times:
+        interp_func = np.interp(all_times, sys_time, y_values)  # Interpolation
+        interpolated_clocks[process] = interp_func
+
+    # Compute drift relative to the minimum logical clock at each timestamp
+    min_logical_clock = np.min(np.array(list(interpolated_clocks.values())), axis=0)
+
+    for process, y_values in interpolated_clocks.items():
+        clock_rate = clock_rates[process]
+        label = f"{process} (Clock Rate: {clock_rate})"
+        
+        drift = y_values - min_logical_clock  # Compute drift
+        plt.plot(all_times, drift, marker='.', markersize=1, linestyle='-', color=colors[process], label=label)
+
+    plt.xlabel("System Time")
+    plt.ylabel("Logical Clock Drift")
+    plt.title(title)
+    plt.legend()
     plt.grid(True)
     plt.savefig(filename)
     plt.close()
@@ -77,6 +112,9 @@ for run_id in runs:
     if system_times_logical:
         plot_combined(system_times_logical, "Logical Clock",
                       "Logical Clock over Time", f"plots/logical_clock{run_id}.png", clock_rates)
+
+        plot_logical_clock_drift(system_times_logical, "Logical Clock Drift over Time",
+                                 f"plots/logical_clock_drift{run_id}.png", clock_rates)
 
     if system_times_queue:
         plot_combined(system_times_queue, "Queue Length",

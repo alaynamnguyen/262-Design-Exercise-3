@@ -24,8 +24,8 @@ message ReadyResponse {
 
 message ClockMessage {
   string sender_id = 1;
-  int64 logical_clock = 2;
-  int64 system_time = 3;
+  float logical_clock = 2;
+  float system_time = 3;
 }
 
 message Ack {

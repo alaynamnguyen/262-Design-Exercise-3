@@ -8,6 +8,17 @@ import logical_clock_pb2
 import logical_clock_pb2_grpc
 import argparse
 
+config = {
+    "default": {
+        "clock_rate": random.randint(1, 6),
+        "external_prob": 3,
+    },
+    "small": {
+        "clock_rate": random.randint(2, 3),
+        "external_prob": 8,
+    },
+}
+
 class ClockService(logical_clock_pb2_grpc.ClockServiceServicer):
     """Handles incoming messages and updates logical clock."""
 
@@ -25,23 +36,24 @@ class ClockService(logical_clock_pb2_grpc.ClockServiceServicer):
 
     def SendMessage(self, request, context):
         """Handles received messages and places them in the event queue."""
-        system_time = int(time.time())
+        system_time = time.time()
         self.process.event_queue.put((request.sender_id, request.logical_clock, system_time))
         return logical_clock_pb2.Ack(message=f"Ack from {self.process.process_id}")
 
 class VirtualMachine:
     """Represents a logical machine with a clock and gRPC server/client."""
 
-    def __init__(self, process_id, port, num_to_port, run_id, port_mapping):
+    def __init__(self, process_id, port, num_to_port, run_id, port_mapping, mode):
         self.process_id = process_id
         self.port = port
         self.num_to_port = num_to_port
         self.logical_clock = 0
-        self.clock_rate = random.randint(1, 6)
+        self.clock_rate = config[mode]["clock_rate"]
         self.event_queue = queue.Queue()
         self.log_file = f"log/{process_id}{run_id}.log"
         self.is_finished = False
         self.port_to_process = {v: k for k, v in port_mapping.items()}
+        self.mode = mode
         
         # Create ClockService instance and share it with gRPC
         self.service = ClockService(self)
@@ -137,7 +149,7 @@ class VirtualMachine:
         message = logical_clock_pb2.ClockMessage(
             sender_id=self.process_id,
             logical_clock=self.logical_clock,
-            system_time=int(time.time())
+            system_time=time.time()
         )
         response = stub.SendMessage(message)
         print(f"{self.process_id} -> Sent message to {target_port} | LC: {self.logical_clock} | Response: {response.message}")
@@ -159,14 +171,14 @@ class VirtualMachine:
                 self.process_message(sender_id, received_clock, system_time)
             else:
                 action = random.randint(1, 10)
-                if action < 3:  # Send to one machine (action is 1 or 2)
+                if action < config[self.mode]["external_prob"]:  # Send to one machine (action is 1 or 2)
                     target = num_to_port[action]
                     target_process = self.port_to_process[target]
                     self.logical_clock += 1
                     self.send_message(target)
                     self.log_event(f"SEND {target_process}", time.time(), self.event_queue.qsize())
 
-                elif action == 3:  # Send to both machines
+                elif action == config[self.mode]["external_prob"]:  # Send to both machines
                     self.logical_clock += 1
                     for target in self.num_to_port.values():
                         self.send_message(target)
@@ -188,9 +200,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a virtual machine process.")
     parser.add_argument("process_id", choices=["A", "B", "C"], help="Process ID (A, B, or C)")
     parser.add_argument("run_id", type=int)
+    parser.add_argument("mode", default="default", type=str, choices=["default", "small"])
     args = parser.parse_args()
     process_id = args.process_id
     run_id = args.run_id
+    mode = args.mode
 
     port_mapping = {"A": "50051", "B": "50052", "C": "50053"}
     peer_ports = [port_mapping[p] for p in port_mapping if p != process_id]
@@ -199,5 +213,5 @@ if __name__ == "__main__":
 
     num_to_port = {1: all_ports[(my_index)-2], 2: peer_ports[(my_index -1)]} # Maps action num to peer port to send to
 
-    vm = VirtualMachine(process_id, port_mapping[process_id], num_to_port, run_id, port_mapping)
+    vm = VirtualMachine(process_id, port_mapping[process_id], num_to_port, run_id, port_mapping, mode)
     vm.run()
