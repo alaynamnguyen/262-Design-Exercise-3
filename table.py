@@ -50,18 +50,18 @@ log_files = sorted([f for f in os.listdir(log_dir) if f.endswith(".log")])
 # Create a dictionary to store the results
 summary_data = {}
 
-# Process all log files and group them by run ID (e.g., A1, B1, C1 → Run 1)
+# Process all log files and group them by run ID (e.g., A1, B1, C1 → Run 1, A1_custom, B1_custom, C1_custom → Run 1_custom)
 for log_file in log_files:
     log_path = os.path.join(log_dir, log_file)
 
-    # Extract process (A, B, or C) and run ID from filename
-    match = re.match(r"([A-C])(\d+)", log_file)
+    # Extract process (A, B, or C) and run ID, including variations like `custom`, `166`
+    match = re.match(r"([A-C])(\d+)(_.*)?\.log", log_file)
     if not match:
         continue  # Skip files that don't match expected pattern
 
-    process, run_id = match.groups()  # Extract process (A/B/C) and run ID
-    run_id = f"Run {run_id}"  # Standardize run ID format
-    
+    process, run_id, variant = match.groups()
+    run_id = f"Run {run_id}{variant if variant else ''}"  # Standardize run ID format with custom tags
+
     if run_id not in summary_data:
         summary_data[run_id] = {"Log File": run_id}
 
