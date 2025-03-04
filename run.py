@@ -10,13 +10,47 @@ import argparse
 
 config = {
     "default": {
-        "clock_rate": random.randint(1, 6),
-        "external_prob": 3,
+        "A": {
+            "clock_rate": random.randint(1, 6),
+            "external_prob": 3,
+        },
+        "B": {
+            "clock_rate": random.randint(1, 6),
+            "external_prob": 3,
+        },
+        "C": {
+            "clock_rate": random.randint(1, 6),
+            "external_prob": 3,
+        }
     },
     "small": {
-        "clock_rate": random.randint(2, 3),
-        "external_prob": 8,
+        "A": {
+            "clock_rate": random.randint(2, 3),
+            "external_prob": 8,
+        },
+        "B": {
+            "clock_rate": random.randint(2, 3),
+            "external_prob": 8,
+        },
+        "C": {
+            "clock_rate": random.randint(2, 3),
+            "external_prob": 8,
+        },
     },
+    "custom": {
+        "A": {
+            "clock_rate": 1,
+            "external_prob": 3,
+        },
+        "B": {
+            "clock_rate": 3,
+            "external_prob": 3,
+        },
+        "C": {
+            "clock_rate": 6,
+            "external_prob": 3,
+        }
+    }
 }
 
 class ClockService(logical_clock_pb2_grpc.ClockServiceServicer):
@@ -48,12 +82,12 @@ class VirtualMachine:
         self.port = port
         self.num_to_port = num_to_port
         self.logical_clock = 0
-        self.clock_rate = config[mode]["clock_rate"]
+        self.clock_rate = config[mode][self.process_id]["clock_rate"]
         self.event_queue = queue.Queue()
-        self.log_file = f"log/{process_id}{run_id}.log"
+        self.mode = mode
+        self.log_file = f"log/{process_id}{run_id}{'_' + self.mode if self.mode != 'default' else ''}.log"
         self.is_finished = False
         self.port_to_process = {v: k for k, v in port_mapping.items()}
-        self.mode = mode
         
         # Create ClockService instance and share it with gRPC
         self.service = ClockService(self)
@@ -164,21 +198,20 @@ class VirtualMachine:
         duration = 65  # Run for 1 minute and 5 seconds
         while time.time() - start_time < duration:
             st = time.time()
-            # time.sleep(1 / self.clock_rate)  # Simulate different speeds
-
             if not self.event_queue.empty():
                 sender_id, received_clock, system_time = self.event_queue.get()
-                self.process_message(sender_id, received_clock, system_time)
+                # self.process_message(sender_id, received_clock, system_time)  # bug
+                self.process_message(sender_id, received_clock, time.time())
             else:
                 action = random.randint(1, 10)
-                if action < config[self.mode]["external_prob"]:  # Send to one machine (action is 1 or 2)
+                if action < config[self.mode][self.process_id]["external_prob"]:  # Send to one machine (action is 1 or 2)
                     target = num_to_port[action]
                     target_process = self.port_to_process[target]
                     self.logical_clock += 1
                     self.send_message(target)
                     self.log_event(f"SEND {target_process}", time.time(), self.event_queue.qsize())
 
-                elif action == config[self.mode]["external_prob"]:  # Send to both machines
+                elif action == config[self.mode][self.process_id]["external_prob"]:  # Send to both machines
                     self.logical_clock += 1
                     for target in self.num_to_port.values():
                         self.send_message(target)
@@ -200,7 +233,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a virtual machine process.")
     parser.add_argument("process_id", choices=["A", "B", "C"], help="Process ID (A, B, or C)")
     parser.add_argument("run_id", type=int)
-    parser.add_argument("mode", default="default", type=str, choices=["default", "small"])
+    parser.add_argument("--mode", default="default", type=str, choices=["default", "small", "custom"])
     args = parser.parse_args()
     process_id = args.process_id
     run_id = args.run_id

@@ -1,11 +1,18 @@
 import matplotlib.pyplot as plt
+import argparse
 import numpy as np
 import os
 import re
 
+parser = argparse.ArgumentParser(description="Run a virtual machine process.")
+parser.add_argument("--mode", default="default", type=str, choices=["default", "small", "custom"])
+args = parser.parse_args()
+mode = args.mode
+
 # Define process names and run IDs
 processes = ["A", "B", "C"]
-runs = range(1, 6)  # i in 1...5
+# runs = range(1, 6)  # i in 1...5
+runs = range(1, 2)
 
 # Regular expression patterns to extract log entries and clock rate
 log_pattern = re.compile(r"(.+?) \| ([\d.]+) \| (\d+) \| (\d+)")
@@ -36,7 +43,7 @@ def read_log(file_path):
 
 # Function to plot all processes on the same graph
 def plot_combined(system_times, y_label, title, filename, clock_rates):
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(10, 10))
     
     # Define colors for A, B, C
     colors = {"A": "blue", "B": "red", "C": "green"}
@@ -77,7 +84,7 @@ def plot_logical_clock_drift(system_times, title, filename, clock_rates):
         label = f"{process} (Clock Rate: {clock_rate})"
         
         drift = y_values - min_logical_clock  # Compute drift
-        plt.plot(all_times, drift, marker='.', markersize=1, linestyle='-', color=colors[process], label=label)
+        plt.plot(all_times, drift, marker='o', markersize=1, linestyle='-', color=colors[process], label=label)
 
     plt.xlabel("System Time")
     plt.ylabel("Logical Clock Drift")
@@ -94,7 +101,8 @@ for run_id in runs:
     clock_rates = {}
 
     for process in processes:
-        log_file = f"log/{process}{run_id}.log"
+        # log_file = f"log/{process}{run_id}.log"
+        log_file = f"log/{process}{run_id}{'_' + mode if mode != 'default' else ''}.log"
 
         if os.path.exists(log_file):
             system_time, logical_clock, queue_length, clock_rate = read_log(log_file)
@@ -111,13 +119,13 @@ for run_id in runs:
     # Plot all processes on the same graph
     if system_times_logical:
         plot_combined(system_times_logical, "Logical Clock",
-                      "Logical Clock over Time", f"plots/logical_clock{run_id}.png", clock_rates)
+                      "Logical Clock over Time", f"plots/logical_clock{run_id}{'_' + mode if mode != 'default' else ''}.pdf", clock_rates)
 
         plot_logical_clock_drift(system_times_logical, "Logical Clock Drift over Time",
-                                 f"plots/logical_clock_drift{run_id}.png", clock_rates)
+                                 f"plots/logical_clock_drift{run_id}{'_' + mode if mode != 'default' else ''}.pdf", clock_rates)
 
     if system_times_queue:
         plot_combined(system_times_queue, "Queue Length",
-                      "Queue Length over Time", f"plots/queue_len{run_id}.png", clock_rates)
+                      "Queue Length over Time", f"plots/queue_len{run_id}{'_' + mode if mode != 'default' else ''}.pdf", clock_rates)
 
     print(f"Plots generated for run {run_id}")
