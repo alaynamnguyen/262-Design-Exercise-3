@@ -11,7 +11,7 @@ mode = args.mode
 
 # Define process names and run IDs
 processes = ["A", "B", "C"]
-runs = range(1, 6)
+runs = range(1, 11)
 
 # Regular expression patterns to extract log entries and clock rate
 log_pattern = re.compile(r"(.+?) \| ([\d.]+) \| (\d+) \| (\d+)")
