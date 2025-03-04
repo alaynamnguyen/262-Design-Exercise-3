@@ -23,6 +23,10 @@ python run.py {process id} {run id} --mode {mode}
 -   Process id: "A", "B", "C".
 -   Run id: Any string to specify the run.
 -   Mode: "default", "small", "custom", "166".
+    -   "default": Process A, B, and C runs at random clock rate between 1 and 6 and 0.3 probability of external events
+    -   "small": processes are run with a higher probability of external events and smaller variance in their clock speeds
+    -   "custom": processes are run with clock speeds 1, 3, and 6
+    -   "166": runs process A at clock rate 1 and the other two processes at clock rate 6
 
 ## To plot the logical clock, drift, and queue lengths for each log file
 
