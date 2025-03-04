@@ -5,7 +5,7 @@ import os
 import re
 
 parser = argparse.ArgumentParser(description="Run a virtual machine process.")
-parser.add_argument("--mode", default="default", type=str, choices=["default", "small", "custom"])
+parser.add_argument("--mode", default="default", type=str, choices=["default", "small", "custom", "166"])
 args = parser.parse_args()
 mode = args.mode
 

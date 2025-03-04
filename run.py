@@ -12,43 +12,57 @@ config = {
     "default": {
         "A": {
             "clock_rate": random.randint(1, 6),
-            "external_prob": 3,
+            "max_action": 3,
         },
         "B": {
             "clock_rate": random.randint(1, 6),
-            "external_prob": 3,
+            "max_action": 3,
         },
         "C": {
             "clock_rate": random.randint(1, 6),
-            "external_prob": 3,
+            "max_action": 3,
         }
     },
     "small": {
         "A": {
             "clock_rate": random.randint(2, 3),
-            "external_prob": 8,
+            "max_action": 4,
         },
         "B": {
             "clock_rate": random.randint(2, 3),
-            "external_prob": 8,
+            "max_action": 4,
         },
         "C": {
             "clock_rate": random.randint(2, 3),
-            "external_prob": 8,
+            "max_action": 4,
         },
     },
     "custom": {
         "A": {
             "clock_rate": 1,
-            "external_prob": 3,
+            "max_action": 3,
         },
         "B": {
             "clock_rate": 3,
-            "external_prob": 3,
+            "max_action": 3,
         },
         "C": {
             "clock_rate": 6,
-            "external_prob": 3,
+            "max_action": 3,
+        }
+    }, 
+    "166": {
+        "A": {
+            "clock_rate": 1,
+            "max_action": 3,
+        },
+        "B": {
+            "clock_rate": 6,
+            "max_action": 3,
+        },
+        "C": {
+            "clock_rate": 6,
+            "max_action": 3,
         }
     }
 }
@@ -203,15 +217,15 @@ class VirtualMachine:
                 # self.process_message(sender_id, received_clock, system_time)  # bug
                 self.process_message(sender_id, received_clock, time.time())
             else:
-                action = random.randint(1, 10)
-                if action < config[self.mode][self.process_id]["external_prob"]:  # Send to one machine (action is 1 or 2)
+                action = random.randint(1, config[mode][self.process_id]['max_action'])
+                if action < 3:  # Send to one machine (action is 1 or 2)
                     target = num_to_port[action]
                     target_process = self.port_to_process[target]
                     self.logical_clock += 1
                     self.send_message(target)
                     self.log_event(f"SEND {target_process}", time.time(), self.event_queue.qsize())
 
-                elif action == config[self.mode][self.process_id]["external_prob"]:  # Send to both machines
+                elif action == 3:  # Send to both machines
                     self.logical_clock += 1
                     for target in self.num_to_port.values():
                         self.send_message(target)
@@ -233,7 +247,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a virtual machine process.")
     parser.add_argument("process_id", choices=["A", "B", "C"], help="Process ID (A, B, or C)")
     parser.add_argument("run_id", type=int)
-    parser.add_argument("--mode", default="default", type=str, choices=["default", "small", "custom"])
+    parser.add_argument("--mode", default="default", type=str, choices=["default", "small", "custom", "166"])
     args = parser.parse_args()
     process_id = args.process_id
     run_id = args.run_id
