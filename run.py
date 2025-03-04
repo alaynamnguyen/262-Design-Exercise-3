@@ -32,15 +32,16 @@ class ClockService(logical_clock_pb2_grpc.ClockServiceServicer):
 class VirtualMachine:
     """Represents a logical machine with a clock and gRPC server/client."""
 
-    def __init__(self, process_id, port, num_to_port, run_id):
+    def __init__(self, process_id, port, num_to_port, run_id, port_mapping):
         self.process_id = process_id
         self.port = port
         self.num_to_port = num_to_port
         self.logical_clock = 0
-        self.clock_rate = 1 if process_id == "A" else 6
+        self.clock_rate = random.randint(1, 6)
         self.event_queue = queue.Queue()
         self.log_file = f"log/{process_id}{run_id}.log"
         self.is_finished = False
+        self.port_to_process = {v: k for k, v in port_mapping.items()}
         
         # Create ClockService instance and share it with gRPC
         self.service = ClockService(self)
@@ -143,13 +144,15 @@ class VirtualMachine:
 
     def run(self):
         """Main event loop: process messages or generate events based on clock rate."""
-        start_time = time.time()
-        # duration = 65  # Run for 1 minute and 5 seconds
-        duration = 5
-        _ = open(self.log_file, "w") # Clear log file
+        with open(self.log_file, "w") as log:
+            log.write(f"Clock Rate: {self.clock_rate} ticks per second\n")
+            log.write(f"{'-' * 40}\n")  # Add a separator for clarity
 
+        start_time = time.time()
+        duration = 65  # Run for 1 minute and 5 seconds
         while time.time() - start_time < duration:
-            time.sleep(1 / self.clock_rate)  # Simulate different speeds
+            st = time.time()
+            # time.sleep(1 / self.clock_rate)  # Simulate different speeds
 
             if not self.event_queue.empty():
                 sender_id, received_clock, system_time = self.event_queue.get()
@@ -158,9 +161,10 @@ class VirtualMachine:
                 action = random.randint(1, 10)
                 if action < 3:  # Send to one machine (action is 1 or 2)
                     target = num_to_port[action]
+                    target_process = self.port_to_process[target]
                     self.logical_clock += 1
                     self.send_message(target)
-                    self.log_event(f"SEND {target}", time.time(), self.event_queue.qsize())
+                    self.log_event(f"SEND {target_process}", time.time(), self.event_queue.qsize())
 
                 elif action == 3:  # Send to both machines
                     self.logical_clock += 1
@@ -171,6 +175,7 @@ class VirtualMachine:
                 else:  # Internal event
                     self.logical_clock += 1
                     self.log_event("INTERNAL", time.time(), self.event_queue.qsize())
+            time.sleep((1 / self.clock_rate) - (time.time() - st))
         
         # Mark this process as finished
         self.is_finished = True
@@ -194,5 +199,5 @@ if __name__ == "__main__":
 
     num_to_port = {1: all_ports[(my_index)-2], 2: peer_ports[(my_index -1)]} # Maps action num to peer port to send to
 
-    vm = VirtualMachine(process_id, port_mapping[process_id], num_to_port, run_id)
+    vm = VirtualMachine(process_id, port_mapping[process_id], num_to_port, run_id, port_mapping)
     vm.run()
