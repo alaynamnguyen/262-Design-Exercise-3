@@ -39,15 +39,15 @@ config = {
     },
     "custom": {
         "A": {
-            "clock_rate": 1,
-            "max_action": 10,
-        },
-        "B": {
             "clock_rate": 3,
             "max_action": 10,
         },
+        "B": {
+            "clock_rate": 2,
+            "max_action": 10,
+        },
         "C": {
-            "clock_rate": 6,
+            "clock_rate": 2,
             "max_action": 10,
         }
     }, 
