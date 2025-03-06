@@ -41,3 +41,7 @@ python plot.py --mode {mode}
 ```sh
 python table.py
 ```
+
+## Bonus experiments beyond the assigned ones
+
+We experimented with different probability distributions for events, not just the case where there is a smaller probability of an event being internal. Example: In Custom Run 3, we used a high probability of an event being internal, which provided additional insights into the interaction between process speed and internal vs. external event rates. For this case, we saw low queue lengths which made sense since less events were external so processes would have received less messages.

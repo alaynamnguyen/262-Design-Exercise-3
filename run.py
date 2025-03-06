@@ -40,15 +40,15 @@ config = {
     "custom": {
         "A": {
             "clock_rate": 3,
-            "max_action": 10,
+            "max_action": 20,
         },
         "B": {
             "clock_rate": 2,
-            "max_action": 10,
+            "max_action": 20,
         },
         "C": {
             "clock_rate": 2,
-            "max_action": 10,
+            "max_action": 20,
         }
     }, 
     "166": {
